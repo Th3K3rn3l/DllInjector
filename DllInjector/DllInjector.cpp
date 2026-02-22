@@ -8,7 +8,7 @@ int main()
 	std::cout << logo << "\n";
 	std::cout << "[FSOCIETY CORP] All rights reserved" << "\n";
 	std::cout << "[FSOCIETY CORP] Confidential access only" << "\n";
-	// ---------------------------------------- Инжект ------------------------------------------
+	// ----------------------------------- Получаем информацию -----------------------------
 	// Получаем данные от пользователя
 	int pID = 0;
 	std::string fullDllPath = "";
@@ -17,6 +17,7 @@ int main()
 	std::cout << "Enter DLL absolute path: ";
 	std::getline(std::cin >> std::ws, fullDllPath);
 
+	//--------------------------------------- Инжект -------------------------------------------
 	// Делаем Standard Injection
 	HANDLE hTarget = OpenProcess(PROCESS_CREATE_THREAD // для создания потока
 		| PROCESS_VM_OPERATION // для VirtualProtectEx
