@@ -1,9 +1,22 @@
 #pragma once
+#include "vector"
+#include <string>
+
+struct Process
+{
+	int ID;
+	std::wstring name;
+};
 
 
 class ProcessManager
 {
-	ProcessManager();
-	~ProcessManager();
+public:
+	ProcessManager() {};
+	~ProcessManager() {};
+
+	std::vector<Process> getProcesses();
+	int getPIDbyName(std::wstring processName);
+private:
 
 };
