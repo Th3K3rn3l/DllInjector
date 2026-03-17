@@ -13,7 +13,10 @@ public:
 	int getPID();
 	void setPID(int pid);
 
-	bool standardInject();
+	// Different injection methods
+	bool standardInject(); // создание потока в целевом процессе и вызов в нем loadLibrary()
+	bool threadHijacking(); // перехват потока целевого процесса и вызов в нем loadLibrary()
+	bool manualMap(); // manual mapping
 private:
 	std::wstring absDllPath;
 	int pID;

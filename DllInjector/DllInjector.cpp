@@ -42,6 +42,7 @@ int main()
 	injector.setDllPath(fullDllPath);
 
 	//--------------------------------------- Инжект -------------------------------------------
-	injector.standardInject();
+	//injector.standardInject();
+	injector.threadHijacking();
 	return 0;
 }

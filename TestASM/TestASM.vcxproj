@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{767586af-e1af-4970-8297-a74d2d8c5a0c}</ProjectGuid>
-    <RootNamespace>DllInjector</RootNamespace>
+    <ProjectGuid>{f9e2a120-c164-42e6-ad27-239fda460455}</ProjectGuid>
+    <RootNamespace>TestASM</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -123,17 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DllInjector.cpp" />
-    <ClCompile Include="injector.cpp" />
-    <ClCompile Include="processManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Injector.h" />
-    <ClInclude Include="logo.h" />
-    <ClInclude Include="processManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shell_code.asm" />
+    <ClCompile Include="TestASM.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
