@@ -1,22 +1,24 @@
-п»ї#include <iostream> // РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєРѕРЅСЃРѕР»СЊСЋ
+#include <iostream> // для работы с консолью
 #define NOMINMAX
-#include <Windows.h> // РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ winapi
-#include "logo.h" // РґР»СЏ ASCII ART
-#include "processManager.h" // РјРµРЅРµРґР¶РµСЂ СѓРїСЂР°РІР»РµРЅРёСЏ РїСЂРѕС†РµСЃСЃР°РјРё
-#include "Injector.h" // РёРЅР¶РµРєС‚РѕСЂ
+#include <Windows.h> // для работы с winapi
+#include "logo.h" // для ASCII ART
+#include "processManager.h" // менеджер управления процессами
+#include "Injector.h" // инжектор
 
 
 int main()
 {
-	//--------------------------------------- СЂРёСЃСѓРµРј Р›РћР“Рћ ---------------------------------------
+	//--------------------------------------- рисуем ЛОГО ---------------------------------------
 	std::wcout << logo << L"\n";
 	std::wcout << L"[FSOCIETY CORP] All rights reserved\n";
 	std::wcout << L"[FSOCIETY CORP] Confidential access only\n";
-
+	// Устанавливаем локаль
+	setlocale(LC_ALL, "Russian");
+	system("chcp 1251"); // настраиваем кодировку консоли
 	ProcessManager pm;
 	Injector injector;
-	// ----------------------------------- РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ -----------------------------
-	// РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	// ----------------------------------- Получаем информацию -----------------------------
+	// Получаем данные от пользователя
 	std::wstring processName;
 	int choice;
 	int pID = 0;
@@ -41,7 +43,9 @@ int main()
 	std::getline(std::wcin, fullDllPath);
 	injector.setDllPath(fullDllPath);
 
-	//--------------------------------------- РРЅР¶РµРєС‚ -------------------------------------------
+	std::wcout << L"You have entered this path for dll: " << fullDllPath << "\n";
+
+	//--------------------------------------- Инжект -------------------------------------------
 	//injector.standardInject();
 	injector.threadHijacking();
 	return 0;

@@ -1,5 +1,5 @@
 #include "injector.h"
-#include "Windows.h"
+#include <Windows.h>
 #include <iostream>
 
 
@@ -109,7 +109,6 @@ bool Injector::threadHijacking() // not working
         std::cout << "Failed to open process\n";
         return false;
     }
-
     // 2. Get LoadLibraryW address (from our process - usually same in target)
     HMODULE hKernel32 = GetModuleHandleW(L"kernel32.dll");
     LPVOID pLoadLibraryW = GetProcAddress(hKernel32, "LoadLibraryW");
@@ -248,7 +247,6 @@ bool Injector::threadHijacking() // not working
     
     // После Возобновляем выполнение потока:
     ResumeThread(hThread);
-
     std::cout << "Thread hijacked successfully!\n";
     std::cout << "Should start executing in " << ctx.Rip << "\n";
 
