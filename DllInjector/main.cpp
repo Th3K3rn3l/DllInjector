@@ -99,6 +99,9 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    // variables
+    const char* current_process = "Notepad.exe";
+
     // Main loop
     bool done = false;
     while (!done)
@@ -169,8 +172,24 @@ int main(int, char**)
             if (ImGui::Button("_", { 25, 25 })) { ::ShowWindow(hwnd, SW_MINIMIZE); }
             ImGui::SameLine();
             if (ImGui::Button("X", { 25, 25 })) { done = true; } // Выход
-            ImGui::PopFont();
             // --- ОСТАЛЬНОЙ КОНТЕНТ (Сайдбар и логи) ---
+            if (ImGui::BeginCombo("Process List", current_process))
+            {
+                if (ImGui::Selectable("Notepad.exe"))
+                {
+                    current_process = "Notepad.exe"; // Запоминаем выбор
+                }
+
+                // Элемент №2
+                if (ImGui::Selectable("Calc.exe"))
+                {
+                    current_process = "Calc.exe"; // Запоминаем выбор
+                }
+
+                // 3. Обязательно закрываем "бутерброд"
+                ImGui::EndCombo();
+            }
+            ImGui::PopFont();
             // Здесь используй ImGui::Columns() или ImGui::BeginChild() для разделения на левую и правую части
         }
         ImGui::End();
