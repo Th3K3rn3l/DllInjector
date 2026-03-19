@@ -138,6 +138,7 @@
     <ClCompile Include="processManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ImageBytes.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_impl_dx11.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Injector.h" />
     <ClInclude Include="logo.h" />
     <ClInclude Include="processManager.h" />
+    <ClInclude Include="stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shell_code.asm" />

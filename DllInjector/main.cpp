@@ -12,6 +12,11 @@
 #include <d3d11.h>
 #include <tchar.h>
 #include <windowsx.h>
+#include <string>
+#include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
+#include "ImageBytes.h"
 
 // Data
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -28,9 +33,69 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+
+std::wstring OpenFileDialogW() {
+    wchar_t szFile[260] = { 0 }; // Используем wchar_t вместо char
+    OPENFILENAMEW ofn;           // Используем структуру W
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+
+    // Строки фильтра тоже должны быть широкими (L"...")
+    ofn.lpstrFilter = L"DLL Files (*.dll)\0*.dll\0All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+    if (GetOpenFileNameW(&ofn)) {
+        return std::wstring(szFile); // Возвращаем wstring
+    }
+    return L"";
+}
+
+bool LoadTextureFromMemory(const unsigned char* data, size_t data_size, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
+{
+    int image_width = 0;
+    int image_height = 0;
+    int channels = 0;
+    unsigned char* rgba_data = stbi_load_from_memory(data, (int)data_size, &image_width, &image_height, &channels, 4);
+
+    if (rgba_data == nullptr) return false;
+
+    D3D11_TEXTURE2D_DESC desc = {};
+    desc.Width = image_width;
+    desc.Height = image_height;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    D3D11_SUBRESOURCE_DATA subResource = {};
+    subResource.pSysMem = rgba_data;
+    subResource.SysMemPitch = image_width * 4;
+
+    ID3D11Texture2D* pTexture = nullptr;
+    HRESULT hr = g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+    if (SUCCEEDED(hr))
+    {
+        g_pd3dDevice->CreateShaderResourceView(pTexture, nullptr, out_srv);
+        pTexture->Release();
+        *out_width = image_width;
+        *out_height = image_height;
+    }
+
+    stbi_image_free(rgba_data);
+    return SUCCEEDED(hr);
+}
+
 // Main code
 int main(int, char**)
 {
+    setlocale(LC_ALL, "Russian");
     // Make process DPI aware and obtain main monitor scale
     ImGui_ImplWin32_EnableDpiAwareness();
     float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
@@ -99,9 +164,33 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // variables
+    // Переменные
     const char* current_process = "Notepad.exe";
+    static int active_tab = 0;
 
+    // СТИЛИ
+    // Устанавливаем цвет фона окна (очень темный сине-черный)
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(222.0f, 215.0f, 215.0f, 1.00f);
+    style.WindowRounding = 10.0f; // Скругление основного окна
+    style.WindowBorderSize = 1.0f;
+    style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    style.FrameRounding = 5.0f;      // Скругление кнопок, инпутов и комбо-боксов
+    style.GrabRounding = 12.0f;      // Скругление ползунков (слайдеров)
+    style.PopupRounding = 8.0f;      // Скругление выпадающих списков (твой Combo)
+    // Цвет активного (нажатого) раздела Selectable
+    style.Colors[ImGuiCol_Header] = ImVec4(0, 0, 0, 0); // Обычное выделение
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0, 0, 0, 0); // При наведении
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0, 0, 0, 0); // При клике
+
+    // Цвет текста внутри чекбоксов и инпутов (если они тоже белые)
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f); // Белый фон полей
+    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.20f, 0.45f, 0.88f, 1.00f); // Синяя галочка
+    // Картинки
+    ID3D11ShaderResourceView* logoTexture = nullptr;
+    int logo_w, logo_h;
+
+    // Загружаем лого
+    LoadTextureFromMemory(logo, sizeof(logo), &logoTexture, &logo_w, &logo_h);
     // Main loop
     bool done = false;
     while (!done)
@@ -151,46 +240,87 @@ int main(int, char**)
 
         ImGui::Begin("MainLayout", nullptr, flags);
         {
-            // --- РИСУЕМ ТАЙТЛ-БАР ---
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            ImVec2 p = ImGui::GetCursorScreenPos();
+            //// --- РИСУЕМ ТАЙТЛ-БАР ---
+            //ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            //ImVec2 p = ImGui::GetCursorScreenPos();
             float width = ImGui::GetContentRegionAvail().x;
-            float height = 40.0f; // Высота тайтл-бара
-
-            // Фон тайтл-бара (можно добавить градиент или обводку)
-            draw_list->AddRectFilled(p, { p.x + width, p.y + height }, ImColor(10, 10, 15));
-            draw_list->AddLine({ p.x, p.y + height }, { p.x + width, p.y + height }, ImColor(0, 255, 255, 100));
-
-            // Текст "INJECTOR"
-            ImGui::SetCursorPos({ 30, 15 });
-            ImGui::PushFont(fontTitle);
-            ImGui::TextColored(ImVec4(0, 1, 1, 1), "INJECTOR");
-            ImGui::PopFont();
-            // Кнопки управления (Закрыть / Свернуть)
+            //float height = 70.0f; // Высота тайтл-бара
+            //ImVec2 p_max = { p.x + width, p.y + height };
+            //// Фон тайтл-бара (можно добавить градиент или обводку)
+            //draw_list->AddRectFilled(p, p_max, ImColor(255, 255, 255, 20), 12);
+            //draw_list->AddRect(p, p_max, ImColor(255, 255, 255, 100), 12, 0, 1.0f);
+            ImGui::SetCursorPos(ImVec2(30, 30));
+            ImGui::Image((void*)logoTexture, ImVec2(140,140));
+            ImGui::SetCursorPos({ 50, 200 });
             ImGui::PushFont(fontRegular);
-            ImGui::SetCursorPos({ width - 70, 15 });
-            if (ImGui::Button("_", { 25, 25 })) { ::ShowWindow(hwnd, SW_MINIMIZE); }
-            ImGui::SameLine();
-            if (ImGui::Button("X", { 25, 25 })) { done = true; } // Выход
-            // --- ОСТАЛЬНОЙ КОНТЕНТ (Сайдбар и логи) ---
-            if (ImGui::BeginCombo("Process List", current_process))
+            ImGui::BeginChild("TabsList", ImVec2(150, 0), false);
             {
-                if (ImGui::Selectable("Notepad.exe"))
-                {
-                    current_process = "Notepad.exe"; // Запоминаем выбор
-                }
+                // Определяем два цвета
+                ImVec4 col_black = ImVec4(0.00f, 0.00f, 0.00f, 1.00f); // Обычный
+                ImVec4 col_blue = ImVec4(0.20f, 0.45f, 0.88f, 1.00f); // Активный (синий)
 
-                // Элемент №2
-                if (ImGui::Selectable("Calc.exe"))
-                {
-                    current_process = "Calc.exe"; // Запоминаем выбор
-                }
-
-                // 3. Обязательно закрываем "бутерброд"
-                ImGui::EndCombo();
+                // Кнопка 1: Injection
+                bool active0 = (active_tab == 0);
+                ImGui::PushStyleColor(ImGuiCol_Text, active0 ? col_blue : col_black);
+                if (ImGui::Selectable("Injection", active0, 0, ImVec2(0, 30))) { active_tab = 0; }
+                ImGui::PopStyleColor();
+                ImGui::Dummy(ImVec2(0, 10.0f)); // Добавляет 10 пикселей пустого пространства вниз
+                // Кнопка 2: Settings
+                bool active1 = (active_tab == 1);
+                ImGui::PushStyleColor(ImGuiCol_Text, active1 ? col_blue : col_black);
+                if (ImGui::Selectable("Settings", active1, 0, ImVec2(0, 30))) { active_tab = 1; }
+                ImGui::PopStyleColor();
+                ImGui::Dummy(ImVec2(0, 10.0f)); // Добавляет 10 пикселей пустого пространства вниз
+                // Кнопка 3: About me
+                bool active2 = (active_tab == 2);
+                ImGui::PushStyleColor(ImGuiCol_Text, active2 ? col_blue : col_black);
+                if (ImGui::Selectable("About me", active2, 0, ImVec2(0, 30))) { active_tab = 2; }
+                ImGui::PopStyleColor();
             }
+            ImGui::EndChild();
             ImGui::PopFont();
-            // Здесь используй ImGui::Columns() или ImGui::BeginChild() для разделения на левую и правую части
+            //    // Текст "INJECTOR"
+            //    ImGui::SetCursorPos({ 30, 25 });
+            //    ImGui::PushFont(fontTitle);
+            //    ImGui::TextColored(ImVec4(0, 1, 1, 1), "INJECTOR");
+            //    ImGui::PopFont();
+            //    // Кнопки управления (Закрыть / Свернуть)
+            //    ImGui::PushFont(fontRegular);
+            //    ImGui::SetCursorPos({ width - 70, 25 });
+            //    if (ImGui::Button("_", { 25, 25 })) { ::ShowWindow(hwnd, SW_MINIMIZE); }
+            //    ImGui::SameLine();
+            //    if (ImGui::Button("X", { 25, 25 })) { done = true; } // Выход
+            //    // --- ОСТАЛЬНОЙ КОНТЕНТ (Сайдбар и логи) ---
+            //    ImGui::SetCursorPos({ 50, 100 });
+            //    if (ImGui::BeginCombo("", current_process))
+            //    {
+            //        if (ImGui::Selectable("Notepad.exe"))
+            //        {
+            //            current_process = "Notepad.exe"; // Запоминаем выбор
+            //        }
+
+            //        // Элемент №2
+            //        if (ImGui::Selectable("Calc.exe"))
+            //        {
+            //            current_process = "Calc.exe"; // Запоминаем выбор
+            //        }
+
+            //        // 3. Обязательно закрываем "бутерброд"
+            //        ImGui::EndCombo();
+            //    }
+            //    ImGui::SameLine();
+            //    if (ImGui::Button("Refresh", { 100, 30 }))
+            //    {
+            //        
+            //    }
+            //    if (ImGui::Button("Inject", { 150, 60 }))
+            //    {
+            //        std::wstring path = OpenFileDialogW();
+            //        std::wcout << path << std::endl;
+            //    }
+            //    ImGui::PopFont();
+            //    // Здесь используй ImGui::Columns() или ImGui::BeginChild() для разделения на левую и правую части
+            //
         }
         ImGui::End();
         // Rendering
@@ -293,11 +423,11 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_NCHITTEST:
     {
         // Определяем зону, за которую можно таскать окно
-        const int TOP_BAR_HEIGHT = 40; // Высота твоего кастомного тайтл-бара
+        const int TOP_BAR_HEIGHT = 70; // Высота твоего кастомного тайтл-бара
         POINT cursor = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
         ::ScreenToClient(hWnd, &cursor);
 
-        if (cursor.y < TOP_BAR_HEIGHT)
+        if (cursor.y < TOP_BAR_HEIGHT and cursor.x < ImGui::GetIO().DisplaySize.x - 85)
             return HTCAPTION; // Говорим винде, что тут "заголовок"
 
         return HTCLIENT;
