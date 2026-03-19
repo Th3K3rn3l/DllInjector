@@ -181,6 +181,11 @@ int main(int, char**)
     style.Colors[ImGuiCol_Header] = ImVec4(0, 0, 0, 0); // Обычное выделение
     style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0, 0, 0, 0); // При наведении
     style.Colors[ImGuiCol_HeaderActive] = ImVec4(0, 0, 0, 0); // При клике
+    // Фон самого выпадающего списка
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
+
+    // Текст в списке (сделаем его черным)
+    style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 
     // Цвет текста внутри чекбоксов и инпутов (если они тоже белые)
     style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f); // Белый фон полей
@@ -240,22 +245,15 @@ int main(int, char**)
 
         ImGui::Begin("MainLayout", nullptr, flags);
         {
-            //// --- РИСУЕМ ТАЙТЛ-БАР ---
-            //ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            //ImVec2 p = ImGui::GetCursorScreenPos();
-            float width = ImGui::GetContentRegionAvail().x;
-            //float height = 70.0f; // Высота тайтл-бара
-            //ImVec2 p_max = { p.x + width, p.y + height };
-            //// Фон тайтл-бара (можно добавить градиент или обводку)
-            //draw_list->AddRectFilled(p, p_max, ImColor(255, 255, 255, 20), 12);
-            //draw_list->AddRect(p, p_max, ImColor(255, 255, 255, 100), 12, 0, 1.0f);
-            ImGui::SetCursorPos(ImVec2(30, 30));
+            // Лого
+            ImGui::SetCursorPos(ImVec2(30, 60));
             ImGui::Image((void*)logoTexture, ImVec2(140,140));
-            ImGui::SetCursorPos({ 50, 200 });
+            // Колонка кнопок разделов слева
+            ImGui::SetCursorPos({ 50, 230 });
             ImGui::PushFont(fontRegular);
             ImGui::BeginChild("TabsList", ImVec2(150, 0), false);
             {
-                // Определяем два цвета
+                // Определяем три цвета
                 ImVec4 col_black = ImVec4(0.00f, 0.00f, 0.00f, 1.00f); // Обычный
                 ImVec4 col_blue = ImVec4(0.20f, 0.45f, 0.88f, 1.00f); // Активный (синий)
 
@@ -279,48 +277,64 @@ int main(int, char**)
             }
             ImGui::EndChild();
             ImGui::PopFont();
-            //    // Текст "INJECTOR"
-            //    ImGui::SetCursorPos({ 30, 25 });
-            //    ImGui::PushFont(fontTitle);
-            //    ImGui::TextColored(ImVec4(0, 1, 1, 1), "INJECTOR");
-            //    ImGui::PopFont();
-            //    // Кнопки управления (Закрыть / Свернуть)
-            //    ImGui::PushFont(fontRegular);
-            //    ImGui::SetCursorPos({ width - 70, 25 });
-            //    if (ImGui::Button("_", { 25, 25 })) { ::ShowWindow(hwnd, SW_MINIMIZE); }
-            //    ImGui::SameLine();
-            //    if (ImGui::Button("X", { 25, 25 })) { done = true; } // Выход
-            //    // --- ОСТАЛЬНОЙ КОНТЕНТ (Сайдбар и логи) ---
-            //    ImGui::SetCursorPos({ 50, 100 });
-            //    if (ImGui::BeginCombo("", current_process))
-            //    {
-            //        if (ImGui::Selectable("Notepad.exe"))
-            //        {
-            //            current_process = "Notepad.exe"; // Запоминаем выбор
-            //        }
+            // Контент раздела (который справа)
+            ImGui::SetCursorPos({450, 30});
+            switch (active_tab)
+            {
+                case 0: // Страница Injection
+                    {
+                        // Заголовок
+                        ImGui::PushFont(fontTitle);
+                        ImGui::Text("INJECTION");
+                        ImGui::SetCursorPos({300, 100});
+                        ImGui::PopFont();
+                        // список процессов
+                        ImGui::PushFont(fontRegular);
+                        ImGui::SetNextItemWidth(500.0f);
+                        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.20f, 0.45f, 0.88f, 0.20f));
+                        ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.20f, 0.45f, 0.88f, 0.40f));
+                        if (ImGui::BeginCombo("", current_process))
+                        {
+                            if (ImGui::Selectable("Notepad.exe"))
+                            {
+                                current_process = "Notepad.exe"; // Запоминаем выбор
+                            }
 
-            //        // Элемент №2
-            //        if (ImGui::Selectable("Calc.exe"))
-            //        {
-            //            current_process = "Calc.exe"; // Запоминаем выбор
-            //        }
+                            // Элемент №2
+                            if (ImGui::Selectable("Calc.exe"))
+                            {
+                                current_process = "Calc.exe"; // Запоминаем выбор
+                            }
 
-            //        // 3. Обязательно закрываем "бутерброд"
-            //        ImGui::EndCombo();
-            //    }
-            //    ImGui::SameLine();
-            //    if (ImGui::Button("Refresh", { 100, 30 }))
-            //    {
-            //        
-            //    }
-            //    if (ImGui::Button("Inject", { 150, 60 }))
-            //    {
-            //        std::wstring path = OpenFileDialogW();
-            //        std::wcout << path << std::endl;
-            //    }
-            //    ImGui::PopFont();
-            //    // Здесь используй ImGui::Columns() или ImGui::BeginChild() для разделения на левую и правую части
-            //
+                            // 3. Обязательно закрываем "бутерброд"
+                            ImGui::EndCombo();
+                        }
+                        ImGui::PopStyleColor(2);
+                        ImGui::SameLine();
+                        if (ImGui::Button("Refresh", { 100, 30 }))
+                        {
+
+                        }
+                        ImGui::PopFont();
+                        break;
+                    }
+                case 1: // Страница Settings
+                    {
+                        ImGui::PushFont(fontTitle);
+                        ImGui::Text("SETTINGS");
+                        ImGui::PopFont();
+                        break;
+                    }
+                case 2: // Страница About me
+                    {
+                        ImGui::PushFont(fontTitle);
+                        ImGui::Text("ABOUT ME");
+                        ImGui::PopFont();
+                        break;
+                    }
+            }
+            
+            
         }
         ImGui::End();
         // Rendering
