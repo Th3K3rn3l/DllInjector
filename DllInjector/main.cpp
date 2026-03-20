@@ -18,6 +18,10 @@
 #include "stb_image/stb_image.h"
 #include "ImageBytes.h"
 
+#include "processManager.h"
+#include <codecvt>
+
+
 // Data
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -165,8 +169,10 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Переменные
-    const char* current_process = "Notepad.exe";
+    std::string current_process = "Notepad.exe";
     static int active_tab = 0;
+    ProcessManager pm;
+    std::vector<Process> processes =  pm.getProcesses();
 
     // СТИЛИ
     // Устанавливаем цвет фона окна (очень темный сине-черный)
@@ -293,27 +299,29 @@ int main(int, char**)
                         ImGui::SetNextItemWidth(500.0f);
                         ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.20f, 0.45f, 0.88f, 0.20f));
                         ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.20f, 0.45f, 0.88f, 0.40f));
-                        if (ImGui::BeginCombo("", current_process))
+                        if (ImGui::BeginCombo("##process_combo", current_process.c_str()))
                         {
-                            if (ImGui::Selectable("Notepad.exe"))
+                            for (Process process : processes)
                             {
-                                current_process = "Notepad.exe"; // Запоминаем выбор
-                            }
+                                std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                                std::string processName = converter.to_bytes(process.name);
 
-                            // Элемент №2
-                            if (ImGui::Selectable("Calc.exe"))
-                            {
-                                current_process = "Calc.exe"; // Запоминаем выбор
-                            }
+                                // Используем PID для уникальности
+                                std::string displayName = processName + " (PID: " + std::to_string(process.ID) + ")";
+                                std::string selectableId = displayName + "##" + std::to_string(process.ID);
 
-                            // 3. Обязательно закрываем "бутерброд"
+                                if (ImGui::Selectable(selectableId.c_str()))
+                                {
+                                    current_process = processName;
+                                }
+                            }
                             ImGui::EndCombo();
                         }
                         ImGui::PopStyleColor(2);
                         ImGui::SameLine();
                         if (ImGui::Button("Refresh", { 100, 30 }))
                         {
-
+                            processes = pm.getProcesses();
                         }
                         ImGui::PopFont();
                         break;
