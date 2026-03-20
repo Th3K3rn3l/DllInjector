@@ -170,6 +170,7 @@ int main(int, char**)
 
     // Переменные
     std::string current_process = "Notepad.exe";
+    std::string current_dll = "C://Injected.dll";
     static int active_tab = 0;
     ProcessManager pm;
     std::vector<Process> processes =  pm.getProcesses();
@@ -299,6 +300,7 @@ int main(int, char**)
                         ImGui::SetNextItemWidth(500.0f);
                         ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.20f, 0.45f, 0.88f, 0.20f));
                         ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.20f, 0.45f, 0.88f, 0.40f));
+                        ImGui::SetNextWindowSize(ImVec2(500, 0));
                         if (ImGui::BeginCombo("##process_combo", current_process.c_str()))
                         {
                             for (Process process : processes)
@@ -309,7 +311,6 @@ int main(int, char**)
                                 // Используем PID для уникальности
                                 std::string displayName = processName + " (PID: " + std::to_string(process.ID) + ")";
                                 std::string selectableId = displayName + "##" + std::to_string(process.ID);
-
                                 if (ImGui::Selectable(selectableId.c_str()))
                                 {
                                     current_process = processName;
@@ -322,6 +323,18 @@ int main(int, char**)
                         if (ImGui::Button("Refresh", { 100, 30 }))
                         {
                             processes = pm.getProcesses();
+                        }
+                        ImGui::SetCursorPos({300, 150});
+                        ImGui::SetNextWindowSize(ImVec2(500, 0));
+                        ImGui::SetNextItemWidth(500);
+                        if (ImGui::BeginCombo("##dll_combo", current_dll.c_str()))
+                        {
+                            ImGui::EndCombo();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Add dll", { 100, 30 }))
+                        {
+                            std::cout << "injected" << std::endl;
                         }
                         ImGui::PopFont();
                         break;
