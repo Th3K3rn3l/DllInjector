@@ -16,5 +16,5 @@ public:
 	~ProcessManager() {};
 
 	std::vector<Process> getProcesses();
-
+	ULONGLONG FindMaxCpuThread(int PID);
 };
