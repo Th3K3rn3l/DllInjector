@@ -176,6 +176,7 @@ int main(int, char**)
     static int active_tab = 0;
     ProcessManager pm;
     std::vector<Process> processes =  pm.getProcesses();
+    int current_pid = 0;
     std::string current_method = "standard injection";
     std::vector<std::string> INJECTION_METHODS = {
     "standard injection",
@@ -322,6 +323,7 @@ int main(int, char**)
                                 if (ImGui::Selectable(selectableId.c_str()))
                                 {
                                     current_process = processName;
+                                    current_pid = process.ID;
                                 }
                             }
                             ImGui::EndCombo();
@@ -367,8 +369,10 @@ int main(int, char**)
                         {
                             Injector injector;
                             injector.setDllPath(current_dll);
-                            injector.setPID(7484);
+                            injector.setPID(current_pid);
                             injector.standardInject();
+                            if (current_method == "standard injection") injector.standardInject();
+                            /*else injector.threadHijacking();*/
                         }
                         ImGui::PopFont();
                         break;
