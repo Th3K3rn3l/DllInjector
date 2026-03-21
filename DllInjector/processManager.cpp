@@ -29,13 +29,4 @@ std::vector<Process> ProcessManager::getProcesses()
 	return processes;
 }
 
-int ProcessManager::getPIDbyName(std::wstring processName)
-{
-	std::vector<Process> processes = getProcesses();
-	for (auto process : processes)
-	{
-		if (process.name == processName) return process.ID;
-	}
-	std::wcout << L"Cannot find PID by name\n";
-	return 0;
-}
+

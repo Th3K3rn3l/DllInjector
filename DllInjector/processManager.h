@@ -16,7 +16,5 @@ public:
 	~ProcessManager() {};
 
 	std::vector<Process> getProcesses();
-	int getPIDbyName(std::wstring processName);
-private:
 
 };
