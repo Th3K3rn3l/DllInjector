@@ -21,6 +21,8 @@
 #include "processManager.h"
 #include <codecvt>
 
+#include "Injector.h";
+
 
 // Data
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -170,10 +172,16 @@ int main(int, char**)
 
     // Переменные
     std::string current_process = "Notepad.exe";
-    std::string current_dll = "C://Injected.dll";
+    std::wstring current_dll = L"C://Injected.dll";
     static int active_tab = 0;
     ProcessManager pm;
     std::vector<Process> processes =  pm.getProcesses();
+    std::string current_method = "standard injection";
+    std::vector<std::string> INJECTION_METHODS = {
+    "standard injection",
+    "thread hijacking"
+    }
+    ;
 
     // СТИЛИ
     // Устанавливаем цвет фона окна (очень темный сине-черный)
@@ -324,17 +332,43 @@ int main(int, char**)
                         {
                             processes = pm.getProcesses();
                         }
-                        ImGui::SetCursorPos({300, 150});
+                        ImGui::Dummy(ImVec2(0, 10));         // вертикальный отступ
+                        ImGui::SetCursorPosX(300);
                         ImGui::SetNextWindowSize(ImVec2(500, 0));
                         ImGui::SetNextItemWidth(500);
-                        if (ImGui::BeginCombo("##dll_combo", current_dll.c_str()))
+                        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                        std::string currentDll = converter.to_bytes(current_dll);
+                        if (ImGui::BeginCombo("##dll_combo", currentDll.c_str()))
                         {
                             ImGui::EndCombo();
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Add dll", { 100, 30 }))
                         {
-                            std::cout << "injected" << std::endl;
+                            current_dll = OpenFileDialogW();
+                        }
+                        ImGui::Dummy(ImVec2(0, 10));         // вертикальный отступ
+                        ImGui::SetCursorPosX(300);
+                        ImGui::SetNextWindowSize(ImVec2(500, 0));
+                        ImGui::SetNextItemWidth(500);
+                        if (ImGui::BeginCombo("##method_combo", current_method.c_str()))
+                        {
+                            for (std::string method : INJECTION_METHODS)
+                            {
+                                if (ImGui::Selectable(method.c_str()))
+                                {
+                                    current_method = method;
+                                }
+                            }
+                            ImGui::EndCombo();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Inject", { 100, 30 }))
+                        {
+                            Injector injector;
+                            injector.setDllPath(current_dll);
+                            injector.setPID(7484);
+                            injector.standardInject();
                         }
                         ImGui::PopFont();
                         break;
