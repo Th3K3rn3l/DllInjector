@@ -370,9 +370,10 @@ int main(int, char**)
                             Injector injector;
                             injector.setDllPath(current_dll);
                             injector.setPID(current_pid);
+                            injector.setThreadId(19320);
                             injector.standardInject();
                             if (current_method == "standard injection") injector.standardInject();
-                            /*else injector.threadHijacking();*/
+                            else injector.threadHijacking();
                         }
                         ImGui::PopFont();
                         break;

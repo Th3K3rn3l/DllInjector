@@ -12,6 +12,8 @@ public:
 	void setDllPath(std::wstring absFullPath);
 	int getPID();
 	void setPID(int pid);
+	int getThreadId();
+	void setThreadId(int thread_id);
 
 	// Different injection methods
 	bool standardInject(); // создание потока в целевом процессе и вызов в нем loadLibrary()
@@ -20,4 +22,5 @@ public:
 private:
 	std::wstring absDllPath;
 	int pID;
+	int threadId;
 };

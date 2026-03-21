@@ -17,6 +17,13 @@ void Injector::setPID(int pid) {
 	pID = pid;
 }
 
+int Injector::getThreadId() {
+    return threadId;
+}
+void Injector::setThreadId(int thread_id)
+{
+    threadId = thread_id;
+}
 
 
 
@@ -201,9 +208,6 @@ bool Injector::threadHijacking() // not working
     }
 
     // 7. Find a thread to hijack
-    DWORD threadId;
-    std::cout << "Enter Thread ID: ";
-    std::cin >> threadId;
 
     HANDLE hThread = OpenThread(
         THREAD_ALL_ACCESS,
