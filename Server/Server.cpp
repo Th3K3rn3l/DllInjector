@@ -1,10 +1,14 @@
 ﻿#include <iostream>
+
 #include <crow.h> // mini web framework
+#include <sodium.h> // crypto library for hashing passwords
 
 #include "database.h"
 
 int main()
 {
+    if (sodium_init() < 0) return 1; // Инициализация крипто библиотеки
+
 	// Setting up database
 	const std::string DATABASE_PATH = "server_database.db";
 	DatabaseManager database;
@@ -30,9 +34,19 @@ int main()
                 // Проверяем, не занят ли логин
                 auto existing = db.get_all<User>(sql::where(sql::c(&User::username) == user));
                 if (!existing.empty()) return crow::response(400, "User already exists");
+                // Хэшируем пароль
+                char hashed_password[crypto_pwhash_STRBYTES];
+                if (crypto_pwhash_str(
+                    hashed_password,
+                    pass.c_str(), pass.length(),
+                    crypto_pwhash_OPSLIMIT_INTERACTIVE, // Лимит операций (баланс скорости/безопасности)
+                    crypto_pwhash_MEMLIMIT_INTERACTIVE  // Лимит памяти
+                ) != 0) {
+                    return crow::response(500, "Server error: hashing failed");
+                }
 
                 // Создаем нового пользователя
-                User newUser{ -1, user, pass, hwid, false }; // -1 для autoincrement ID
+                User newUser{ -1, user, std::string(hashed_password), hwid, false }; // -1 для autoincrement ID
                 try {
                     db.insert(newUser);
                     return crow::response(200, "Registration successful");
@@ -61,9 +75,13 @@ int main()
                 if (matchingUsers.empty())
                     return crow::response(404, "You need to register first");
                 auto& existingUser = matchingUsers[0];
-                // проверка пароля
-                if (existingUser.password_hash != pass)
+                // проверка пароля (тут хэш)
+                if (crypto_pwhash_str_verify(
+                    existingUser.password_hash.c_str(),
+                    pass.c_str(), pass.length()
+                ) != 0) {
                     return crow::response(401, "Password incorrect");
+                }
                 // проверка железа
                 if (existingUser.hwid != hwid)
                     return crow::response(403, "This account is linked to another device");
