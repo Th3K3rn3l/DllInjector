@@ -1,6 +1,8 @@
 #pragma once
 #include "vector"
 #include <string>
+#include <windows.h>
+
 
 struct Process
 {

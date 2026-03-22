@@ -42,7 +42,7 @@ ULONGLONG ProcessManager::FindMaxCpuThread(int PID)
 	if (snapshot == INVALID_HANDLE_VALUE)
 	{
 		std::cout << "Failed to create thread snapshot\n";
-		return;
+		return 0;
 	}
 	// Переменные
 	THREADENTRY32 te{};
