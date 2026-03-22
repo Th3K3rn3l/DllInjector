@@ -264,6 +264,21 @@ int main(int, char**)
             // Лого
             ImGui::SetCursorPos(ImVec2(30, 60));
             ImGui::Image((void*)logoTexture, ImVec2(140,140));
+            // Кнопка закрытия окна
+            float windowWidth = ImGui::GetIO().DisplaySize.x;
+            ImGui::SetCursorPos(ImVec2(windowWidth - 60, 25));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));          // Прозрачный фон
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 0.4f)); // Красный отсвет при наведении
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.0f, 0.0f, 0.6f));  // Ярко-красный при клике
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
+
+            if (ImGui::Button("X", ImVec2(50, 50)))
+            {
+                done = true; // Закрываем цикл приложения
+            }
+
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor(3);
             // Колонка кнопок разделов слева
             ImGui::SetCursorPos({ 50, 230 });
             ImGui::PushFont(fontRegular);
@@ -497,11 +512,11 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_NCHITTEST:
     {
         // Определяем зону, за которую можно таскать окно
-        const int TOP_BAR_HEIGHT = 70; // Высота твоего кастомного тайтл-бара
+        const int TOP_BAR_HEIGHT = 70; // Высота кастомного тайтл-бара
         POINT cursor = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
         ::ScreenToClient(hWnd, &cursor);
 
-        if (cursor.y < TOP_BAR_HEIGHT and cursor.x < ImGui::GetIO().DisplaySize.x - 85)
+        if (cursor.y < TOP_BAR_HEIGHT and cursor.x < ImGui::GetIO().DisplaySize.x - 60)
             return HTCAPTION; // Говорим винде, что тут "заголовок"
 
         return HTCLIENT;
