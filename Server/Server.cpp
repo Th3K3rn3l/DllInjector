@@ -43,10 +43,34 @@ int main()
             }
         );
 		
-    //CROW_ROUTE(app, "/login")
+    CROW_ROUTE(app, "/login").methods("POST"_method)
+        ([&db](const crow::request& req)
+            {
+                auto x = crow::json::load(req.body);
+                if (!x) return crow::response(400, "Invalid request");
 
+                if (!x.has("username") || !x.has("password") || !x.has("hwid"))
+                    return crow::response(400, "Not enough fields");
 
+                std::string user = x["username"].s();
+                std::string pass = x["password"].s(); // В идеале тут должен быть хеш
+                std::string hwid = x["hwid"].s();
 
+                auto matchingUsers = db.get_all<User>
+                    (sql::where(sql::c(&User::username) == user));
+                if (matchingUsers.empty())
+                    return crow::response(404, "You need to register first");
+                auto& existingUser = matchingUsers[0];
+                // проверка пароля
+                if (existingUser.password_hash != pass)
+                    return crow::response(401, "Password incorrect");
+                // проверка железа
+                if (existingUser.hwid != hwid)
+                    return crow::response(403, "This account is linked to another device");
+                // успешный вход
+                return crow::response(200, "Login successful");
+            }
+        );
 
 
 	app.port(8000).run();
