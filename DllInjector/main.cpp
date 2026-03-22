@@ -16,6 +16,8 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 #include "ImageBytes.h"
 
 #include "processManager.h"
@@ -110,7 +112,8 @@ int main(int, char**)
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
     HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"DLL INJECTOR", WS_POPUP, 100, 100, (int)(854 * main_scale), (int)(480 * main_scale), nullptr, nullptr, wc.hInstance, nullptr);
-
+    MARGINS margins = { -1, -1, -1, -1 };
+    DwmExtendFrameIntoClientArea(hwnd, &margins);
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
     {
@@ -414,7 +417,7 @@ int main(int, char**)
         ImGui::End();
         // Rendering
         ImGui::Render();
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
