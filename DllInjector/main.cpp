@@ -529,8 +529,14 @@ case AUTH_REGISTER:
         ImGui::Dummy(ImVec2(0, 20));
 
         if (ImGui::Button("REGISTER", ImVec2(300, 40))) {
-            // Логика регистрации
-            current_auth_state = AUTH_LOGIN;
+            // Здесь логика авторизации
+            std::string json_payload = "{\"username\": \"" + std::string(reg_name) + "\", "
+                "\"password\": \"" + std::string(reg_pass) + "\"}";
+            cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:8000/register" },
+                cpr::Header{ { "Content-Type", "application/json" } }, // Указываем, что это JSON
+                cpr::Body{ json_payload }                             // Передаем строку
+            );
+            if (r.status_code == 200) current_auth_state = AUTH_LOGIN;
         }
 
         ImGui::SetCursorPosX(90);
