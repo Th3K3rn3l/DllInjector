@@ -22,7 +22,7 @@
 
 #include "processManager.h"
 #include <codecvt>
-
+#include <cpr/cpr.h>
 #include "Injector.h";
 
 
@@ -464,8 +464,15 @@ case AUTH_LOGIN:
 
         // Кнопка входа
         if (ImGui::Button("LOGIN", ImVec2(300, 40))) {
-            // Здесь будет твоя логика авторизации (libsodium/Crow)
-            current_auth_state = AUTH_SUCCESS;
+            // Здесь логика авторизации
+            std::string json_payload = "{\"username\": \"" + std::string(user_name) + "\", "
+                "\"password\": \"" + std::string(user_pass) + "\", "
+                "\"hwid\": \"50999645231\"}";
+            cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:8000/login" },
+                cpr::Header{ { "Content-Type", "application/json" } }, // Указываем, что это JSON
+                cpr::Body{ json_payload }                             // Передаем строку
+            );
+            if (r.status_code == 200) current_auth_state = AUTH_SUCCESS;
         }
 
         // Переход на регистрацию

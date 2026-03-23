@@ -94,7 +94,7 @@ int main()
                 res["info"] = "Logged in via web. App features disabled.";
             }
         }
-
+        std::cout << "Successful login from " << req.remote_ip_address << std::endl;
         return crow::response(200, res);
             }
             );
