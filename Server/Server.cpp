@@ -53,7 +53,7 @@ int main()
 
         // Если "hwid" есть, берем его значение, если нет — записываем пустую строку
         std::string incoming_hwid = x.has("hwid") ? x["hwid"].s() : std::string("");
-
+        std::cout << "Request from HWID: " << incoming_hwid << std::endl;
         auto matchingUsers = db.get_all<User>(sql::where(sql::c(&User::username) == user));
         if (matchingUsers.empty()) return crow::response(404, "User not found");
 

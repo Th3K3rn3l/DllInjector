@@ -117,9 +117,6 @@ std::string GetMachineHWID() {
     return "UNKNOWN_HWID";
 }
 
-// Пример использования:
-// std::string my_hwid = GetMachineHWID();
-
 // Main code
 int main(int, char**)
 {
@@ -485,9 +482,10 @@ case AUTH_LOGIN:
         // Кнопка входа
         if (ImGui::Button("LOGIN", ImVec2(300, 40))) {
             // Здесь логика авторизации
+            std::string my_hwid = GetMachineHWID();
             std::string json_payload = "{\"username\": \"" + std::string(user_name) + "\", "
                 "\"password\": \"" + std::string(user_pass) + "\", "
-                "\"hwid\": \"50999645231\"}";
+                "\"hwid\": \"" + my_hwid + "\"}";
             cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:8000/login" },
                 cpr::Header{ { "Content-Type", "application/json" } }, // Указываем, что это JSON
                 cpr::Body{ json_payload }                             // Передаем строку
