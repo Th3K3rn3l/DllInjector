@@ -23,6 +23,8 @@
 #include "processManager.h"
 #include <codecvt>
 #include <cpr/cpr.h>
+#include <sstream>  // Обязательно для stringstream
+#include <iomanip>  // Обязательно для setfill и setw
 #include "Injector.h";
 
 
@@ -99,6 +101,24 @@ bool LoadTextureFromMemory(const unsigned char* data, size_t data_size, ID3D11Sh
     stbi_image_free(rgba_data);
     return SUCCEEDED(hr);
 }
+
+std::string GetMachineHWID() {
+    DWORD serialNumber = 0;
+
+    // GetVolumeInformationW работает с системным диском C:
+    // Мы передаем NULL в параметры, которые нам не нужны (имя метки, файловая система и т.д.)
+    if (GetVolumeInformationW(L"C:\\", NULL, 0, &serialNumber, NULL, NULL, NULL, 0)) {
+        std::stringstream ss;
+        // Форматируем число в HEX (например: 0x1234ABCD -> "1234ABCD")
+        ss << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << serialNumber;
+        return ss.str();
+    }
+
+    return "UNKNOWN_HWID";
+}
+
+// Пример использования:
+// std::string my_hwid = GetMachineHWID();
 
 // Main code
 int main(int, char**)
