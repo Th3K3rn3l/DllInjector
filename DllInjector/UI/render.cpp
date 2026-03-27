@@ -301,4 +301,3 @@ void Renderer::drawMain()
     }
     }
 }
-}
