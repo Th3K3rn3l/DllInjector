@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include <string>
 
 class Injector
@@ -7,6 +7,11 @@ class Injector
 public:
 	Injector() {};
 	~Injector() {};
+
+	std::vector<std::string> INJECTION_METHODS = {
+		"standard injection",
+		"thread hijacking"
+	};
 
 	std::wstring getDllPath();
 	void setDllPath(std::wstring absFullPath);

@@ -109,6 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;dxgi.lib;dxguid.lib;comdlg32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -125,11 +126,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies);d3d11.lib;dxgi.lib;dxguid.lib;comdlg32.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="helperFuncs\helperFuncs.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />
@@ -140,9 +142,11 @@
     <ClCompile Include="injector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processManager.cpp" />
+    <ClCompile Include="UI\render.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageBytes.h" />
+    <ClInclude Include="assets\ImageBytes.h" />
+    <ClInclude Include="helperFuncs\helperFuncs.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_impl_dx11.h" />
@@ -155,6 +159,7 @@
     <ClInclude Include="logo.h" />
     <ClInclude Include="processManager.h" />
     <ClInclude Include="stb_image\stb_image.h" />
+    <ClInclude Include="UI\render.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shell_code.asm" />
