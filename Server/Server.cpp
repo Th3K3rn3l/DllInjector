@@ -4,6 +4,7 @@
 #include "database.h"
 #include "routes/routes.h"
 
+
 int main()
 {
     if (sodium_init() < 0) return 1;

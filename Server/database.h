@@ -9,8 +9,9 @@ struct User
 	int id;
 	std::string username;
 	std::string password_hash;
-	std::string hwid;
 	bool licence_active;
+	std::string totp_secret;      // base32-encoded секрет (пусто, если 2FA не включена)
+	bool totp_enabled;            // true, если 2FA активна
 };
 
 
@@ -28,8 +29,9 @@ public:
 					sql::make_column("id", &User::id, sql::primary_key().autoincrement()),
 					sql::make_column("username", &User::username, sql::unique()),
 					sql::make_column("password_hash", &User::password_hash),
-					sql::make_column("hwid", &User::hwid),
-					sql::make_column("licence_active", &User::licence_active)
+					sql::make_column("licence_active", &User::licence_active),
+					sql::make_column("totp_secret", &User::totp_secret),
+					sql::make_column("totp_enabled", &User::totp_enabled)
 				)
 			);
 		}

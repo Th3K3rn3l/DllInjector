@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+# Временные файлы SQLite (журналы)
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Environment
+*.env

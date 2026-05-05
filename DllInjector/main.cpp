@@ -162,6 +162,9 @@ int main(int, char**)
             case AUTH_REGISTER:
                 renderer.drawRegister();
                 break;
+            case AUTH_2FA:          // <-- добавить эту строку
+                renderer.draw2FA();
+                break;
             }
         }
         ImGui::End();

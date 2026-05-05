@@ -142,6 +142,7 @@
     <ClCompile Include="injector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processManager.cpp" />
+    <ClCompile Include="UI\qrcodegen.cpp" />
     <ClCompile Include="UI\render.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="logo.h" />
     <ClInclude Include="processManager.h" />
     <ClInclude Include="stb_image\stb_image.h" />
+    <ClInclude Include="UI\qrcodegen.hpp" />
     <ClInclude Include="UI\render.h" />
   </ItemGroup>
   <ItemGroup>
