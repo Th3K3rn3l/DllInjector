@@ -221,7 +221,14 @@ bool Injector::threadHijacking() // not working
     }
 
     // 8. Suspend thread and get context
-    SuspendThread(hThread);
+    DWORD suspendResult = SuspendThread(hThread);
+    if (suspendResult == (DWORD)-1) {
+        std::cout << "SuspendThread failed, error: " << GetLastError() << "\n";
+        // не продолжай
+    }
+    else {
+        std::cout << "SuspendThread OK, previous suspend count: " << suspendResult << "\n";
+    }
 
     CONTEXT ctx = { 0 };
     ctx.ContextFlags = CONTEXT_FULL;
